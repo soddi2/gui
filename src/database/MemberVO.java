@@ -1,5 +1,7 @@
 package database;
 
+import java.util.Vector;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -18,4 +20,5 @@ public class MemberVO {
 	private String name;
 	private int age;
 	private String gender;
+	
 }
