@@ -13,7 +13,7 @@ public class MemberDAO {
 	//드라이버 클래스 로드
 	static{
 		try {
-			Class.forName("oracle.jdbc.OracleDriver");
+			Class.forName("oracle.jdbc.oracleDriver");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -43,7 +43,6 @@ public class MemberDAO {
 		Vector<MemberVO> vecList = new Vector<MemberVO>();
 	
 		String sql = "select * from memberTBL";
-		
 		try(Connection con =  getConnection();
 			PreparedStatement pstmt = con.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery()) {
@@ -62,6 +61,7 @@ public class MemberDAO {
 		}
 		return vecList;
 	}
+
 	
 	public int insert(MemberVO vo) { //1.로드 2.커넥션 3.그 다음 인설트 등등
 		String sql = "insert into memberTBL values(member_seq.nextval,?,?,?)";
@@ -130,19 +130,6 @@ public class MemberDAO {
 		return result;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
