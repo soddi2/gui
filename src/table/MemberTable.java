@@ -13,15 +13,19 @@ import database.MemberVO;
 
 import javax.swing.JTabbedPane;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
+import java.awt.Font;
 
-public class MemberTable extends JFrame {
+public class MemberTable extends JFrame implements ActionListener {
 
 	private JPanel contentPane;
 	private JTextField text1;
@@ -35,7 +39,13 @@ public class MemberTable extends JFrame {
 	private JTable table_1;
 	
 	private MemberDAO dao;
+	
+	//전체 조회
 	private DefaultTableModel model; 
+	//하나 조회
+	private DefaultTableModel model1;
+	
+	
 	private Vector<String> rowData;
 
 	/**
@@ -77,6 +87,7 @@ public class MemberTable extends JFrame {
 		panel.setLayout(new GridLayout(0, 2, 0, 0));
 		
 		JLabel lbl1 = new JLabel("이름");
+		lbl1.setFont(new Font("굴림", Font.PLAIN, 22));
 		panel.add(lbl1);
 		
 		text1 = new JTextField();
@@ -84,6 +95,7 @@ public class MemberTable extends JFrame {
 		text1.setColumns(10);
 		
 		JLabel lbl2 = new JLabel("나이");
+		lbl2.setFont(new Font("굴림", Font.PLAIN, 22));
 		panel.add(lbl2);
 		
 		text2 = new JTextField();
@@ -91,6 +103,7 @@ public class MemberTable extends JFrame {
 		text2.setColumns(10);
 		
 		JLabel lblNewLabel_2 = new JLabel("성별");
+		lblNewLabel_2.setFont(new Font("굴림", Font.PLAIN, 22));
 		panel.add(lblNewLabel_2);
 		
 		text3 = new JTextField();
@@ -113,9 +126,13 @@ public class MemberTable extends JFrame {
 		
 		JButton btnNewButton = new JButton("조회");
 		panel_4.add(btnNewButton);
+		btnNewButton.addActionListener(this);
 		
-		table = new JTable();
-		panel_1.add(table, BorderLayout.CENTER);
+		model1 = getModel();
+		table = new JTable(model1);
+		JScrollPane scrollPane1 = new JScrollPane();
+		scrollPane1.setViewportView(table);
+		panel_1.add(scrollPane1, BorderLayout.CENTER);
 		
 		JPanel panel_2 = new JPanel();
 		tabbedPane.addTab("회원 수정", null, panel_2, null);
@@ -166,18 +183,28 @@ public class MemberTable extends JFrame {
 		panel_6.add(scrollPane, BorderLayout.CENTER);
 		
 		//memberTBL의 전체 내용 가져오기
-		String columnNames[] = {"번호","이름","나이","성별"};
-		model = new DefaultTableModel(columnNames,0) {
-		
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
+	
 		table_1 = new JTable(model);
 		list();
 		scrollPane.setViewportView(table_1);
+		
+		//회원등록 화면의 성별
+		text3.addActionListener(this);
 	}
+	
+	public DefaultTableModel getModel() {
+		//memberTBL의 전체 내용 가져오기
+				String columnNames[] = {"번호","이름","나이","성별"};
+				model = new DefaultTableModel(columnNames,0) {
+				
+					@Override
+					public boolean isCellEditable(int row, int column) {
+						return false;
+					}
+				};
+				return model;
+	}
+	
 	public void list() {
 		Vector<MemberVO> vecList = dao.getList();
 		
@@ -189,7 +216,45 @@ public class MemberTable extends JFrame {
 		}
 		
 	}
-}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		MemberVO vo = new MemberVO();
+		
+		if(e.getSource()==text3) {
+			//이름과 나이와 성별을 가져온 후 데이터베이스에 입력하기 
+			
+			vo.setName(text1.getText());
+			vo.setAge(Integer.parseInt(text2.getText()));
+			vo.setGender(text3.getText());
+			//데이터베이스에 입력하기
+			int result = dao.insert(vo);
+			
+			if(result>0) { //성공
+				JOptionPane.showMessageDialog(this, "입력성공");
+				
+				//모델이 가지고 있던 값 초기화
+				model.setNumRows(0);
+				list();
+			}else {//실패
+				JOptionPane.showMessageDialog(this, "입력실패");
+			}
+		}else if(e.getActionCommand().equals("조회")) {
+			//사용자가 입력한 번호 가져오기
+			int no = (Integer.parseInt(textField.getText()));
+	
+			//번호에 해당하는 정보 가져온 후 보여주기 
+			vo = dao.getRow(no);
+			Object[] objList = {vo.getNo(),vo.getName(),vo.getAge(),vo.getGender()};
+			model1.addRow(objList);
+				
+			}
+			
+			
+		}
+		
+	}
+
 
 
 
